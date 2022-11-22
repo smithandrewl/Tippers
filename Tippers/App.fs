@@ -1,4 +1,4 @@
-namespace Tippy
+namespace Tippers
 
 open Xamarin.Forms
 open Fabulous.XamarinForms

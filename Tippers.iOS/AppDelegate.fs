@@ -1,4 +1,4 @@
-namespace Tippy.iOS
+namespace Tippers.iOS
 
 open System
 open UIKit

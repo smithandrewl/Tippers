@@ -9,7 +9,7 @@
         <UseStandardResourceNames>true</UseStandardResourceNames>
         <OutputType>Library</OutputType>
         <RootNamespace>Tippy.Android</RootNamespace>
-        <AssemblyName>Tippy.Android</AssemblyName>
+        <AssemblyName>Tippers.Android</AssemblyName>
         <TargetFrameworkVersion>v11.0</TargetFrameworkVersion>
         <AndroidApplication>True</AndroidApplication>
         <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
@@ -62,9 +62,9 @@
         <Compile Include="MainActivity.fs" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Tippy\Tippy.fsproj">
-            <Project>{7032662F-5653-486C-8CFC-5A3CEE5819CD}</Project>
-            <Name>Tippy</Name>
+        <ProjectReference Include="..\Tippers\Tippers.fsproj">
+            <Project>{7032662f-5653-486c-8cfc-5a3cee5819cd}</Project>
+            <Name>Tippers</Name>
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>

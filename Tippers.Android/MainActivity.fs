@@ -1,4 +1,4 @@
-﻿namespace Tippy.Android
+﻿namespace Tippers.Android
 
 open System
 
@@ -11,7 +11,7 @@ open Android.Widget
 open Android.OS
 
 open Fabulous.XamarinForms
-open Tippy
+open Tippers
 open Xamarin.Forms.Platform.Android
 
 [<Activity(Label = "Tippy.Android",

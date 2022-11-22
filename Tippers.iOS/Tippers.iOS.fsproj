@@ -10,7 +10,7 @@
         <OutputType>Exe</OutputType>
         <RootNamespace>Tippy.iOS</RootNamespace>
         <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-        <AssemblyName>Tippy.iOS</AssemblyName>
+        <AssemblyName>Tippers.iOS</AssemblyName>
         <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
         <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     </PropertyGroup>
@@ -118,9 +118,9 @@
         <PackageReference Include="Fabulous.XamarinForms" Version="2.1.0" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Tippy\Tippy.fsproj">
-            <Project>{7032662F-5653-486C-8CFC-5A3CEE5819CD}</Project>
-            <Name>Tippy</Name>
+        <ProjectReference Include="..\Tippers\Tippers.fsproj">
+            <Project>{7032662f-5653-486c-8cfc-5a3cee5819cd}</Project>
+            <Name>Tippers</Name>
         </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.FSharp.targets" />
