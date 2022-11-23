@@ -1,8 +1,8 @@
 namespace Tippers
 
+open Tippers.FuzzyLogic
 open Xamarin.Forms
 open Fabulous.XamarinForms
-
 open type View
 
 module App =
@@ -12,33 +12,48 @@ module App =
       Friendly:   int
     }
     
+    type FuzzyServiceRating = {
+      Responsive: FuzzyVariable.FuzzyVariable
+      Overall:    FuzzyVariable.FuzzyVariable
+      Friendly:   FuzzyVariable.FuzzyVariable
+    }
+    
     type Model = {
       Cost:   float
       Rating: ServiceRating
-      
+      FuzzyServiceRating: FuzzyServiceRating
     }
 
     type Msg =
         | CostChange       of float
-        | ResponsiveChange of int
-        | FriendlyChange   of int
-        | OverallChange    of int
+        | RatingChange     of int * int * int
 
     let init () = {
       Cost = 0.0
       Rating = {
-          Responsive = 5
-          Overall    = 5
-          Friendly   = 5
+          Responsive = 1
+          Friendly   = 3
+          Overall    = 7
+      }
+      FuzzyServiceRating = {
+          Responsive = FuzzyVariable.grade 1.0 0.0 10.0
+          Friendly   = FuzzyVariable.grade 3.0 0.0 10.0
+          Overall    = FuzzyVariable.grade 7.0 0.0 10.0
       }
     }
 
     let update msg model =
         match msg with
         | CostChange       cost ->  { model with Cost   = cost }
-        | ResponsiveChange value -> { model with Rating = { model.Rating with Responsive = value }}
-        | FriendlyChange   value -> { model with Rating = { model.Rating with Friendly   = value }}
-        | OverallChange    value -> { model with Rating = { model.Rating with Overall    = value }}
+        | RatingChange(responsive, friendly, overall) -> {
+          model with
+            Rating = { Responsive = responsive; Friendly = friendly; Overall = overall }
+            FuzzyServiceRating = {
+              Responsive = FuzzyVariable.grade (float responsive) 0.0 10.0
+              Overall    = FuzzyVariable.grade (float overall)    0.0 10.0
+              Friendly   = FuzzyVariable.grade (float friendly)   0.0 10.0
+            }
+        }
     let view model =
         Application(
             ContentPage(
@@ -48,6 +63,8 @@ module App =
                         .font(namedSize = NamedSize.Title)
                         .centerTextHorizontal()
 
+                    
+                    
                     (VStack() {
                         Label("Total Cost").centerTextHorizontal()
                         Entry(
@@ -58,19 +75,32 @@ module App =
                         Label("Was the server responsive? (1-10)").centerTextHorizontal() 
                         Entry(
                           model.Rating.Responsive.ToString(),
-                          fun (txt) -> ResponsiveChange(txt |> int)
+                          fun (txt) -> RatingChange(txt |> int, model.Rating.Friendly, model.Rating.Overall)
                         )
                         
                         Label("Was the server friendly? (1-10)").centerTextHorizontal()
                         Entry(
                           model.Rating.Friendly.ToString(),
-                          fun (txt) -> FriendlyChange(txt |> int)
+                          fun (txt) -> RatingChange(model.Rating.Responsive, txt |> int, model.Rating.Overall)
                         )
                         
                         Label("How was your overall experience? (1-10)").centerTextHorizontal()
                         Entry(
                           model.Rating.Overall.ToString(),
-                          fun (txt) -> OverallChange(txt |> int)
+                          fun (txt) -> RatingChange(model.Rating.Responsive, model.Rating.Friendly, txt |> int)
+                        )
+                        
+                        Label("Fuzzy Service Rating").centerTextHorizontal()
+                        
+                        Label($"Responsive(low = {model.FuzzyServiceRating.Responsive.Low}, med = {model
+                        .FuzzyServiceRating.Responsive.Med}, high = {model.FuzzyServiceRating.Responsive.High})"
+                        )
+                        
+                        Label($"Friendly(low = {model.FuzzyServiceRating.Friendly.Low}, med = {model
+                        .FuzzyServiceRating.Friendly.Med}, high = {model.FuzzyServiceRating.Friendly.High})"
+                        )
+                        Label($"Overall(low = {model.FuzzyServiceRating.Overall.Low}, med = {model
+                        .FuzzyServiceRating.Overall.Med}, high = {model.FuzzyServiceRating.Overall.High})"
                         )
                      }).centerVertical(expand = true)
                 }

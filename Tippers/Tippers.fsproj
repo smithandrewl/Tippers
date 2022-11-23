@@ -14,4 +14,7 @@
     <ItemGroup>
       <Compile Include="App.fs" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Tippers.FuzzyLogic\Tippers.FuzzyLogic.fsproj" />
+    </ItemGroup>
 </Project>
