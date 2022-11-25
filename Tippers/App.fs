@@ -22,6 +22,8 @@ module App =
       Cost:   float
       Rating: ServiceRating
       FuzzyServiceRating: FuzzyServiceRating
+      RatingKeys: string list
+      RatingMap: Map<string, int>
     }
 
     type Msg =
@@ -31,15 +33,29 @@ module App =
     let init () = {
       Cost = 0.0
       Rating = {
-          Responsive = 1
-          Friendly   = 3
-          Overall    = 7
+          Responsive = 5
+          Friendly   = 5
+          Overall    = 5
       }
       FuzzyServiceRating = {
-          Responsive = FuzzyVariable.grade 1.0 0.0 10.0
-          Friendly   = FuzzyVariable.grade 3.0 0.0 10.0
-          Overall    = FuzzyVariable.grade 7.0 0.0 10.0
+          Responsive = FuzzyVariable.grade 5.0 1.0 10.0
+          Friendly   = FuzzyVariable.grade 5.0 1.0 10.0
+          Overall    = FuzzyVariable.grade 5.0 1.0 10.0
       }
+      
+      RatingKeys = ["1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"; "10"]
+      RatingMap = Map.ofList [
+        ("1", 1)
+        ("2", 2)
+        ("3", 3)
+        ("4", 4)
+        ("5", 5)
+        ("6", 6)
+        ("7", 7)
+        ("8", 8)
+        ("9", 9)
+        ("10", 10)
+      ]
     }
 
     let update msg model =
@@ -49,9 +65,9 @@ module App =
           model with
             Rating = { Responsive = responsive; Friendly = friendly; Overall = overall }
             FuzzyServiceRating = {
-              Responsive = FuzzyVariable.grade (float responsive) 0.0 10.0
-              Overall    = FuzzyVariable.grade (float overall)    0.0 10.0
-              Friendly   = FuzzyVariable.grade (float friendly)   0.0 10.0
+              Responsive = FuzzyVariable.grade (float responsive) 1.0 10.0
+              Overall    = FuzzyVariable.grade (float overall)    1.0 10.0
+              Friendly   = FuzzyVariable.grade (float friendly)   1.0 10.0
             }
         }
     let view model =
@@ -62,9 +78,7 @@ module App =
                     Label("Tippers")
                         .font(namedSize = NamedSize.Title)
                         .centerTextHorizontal()
-
-                    
-                    
+                        
                     (VStack() {
                         Label("Total Cost").centerTextHorizontal()
                         Entry(
@@ -73,34 +87,64 @@ module App =
                         )
                         
                         Label("Was the server responsive? (1-10)").centerTextHorizontal() 
-                        Entry(
-                          model.Rating.Responsive.ToString(),
-                          fun (txt) -> RatingChange(txt |> int, model.Rating.Friendly, model.Rating.Overall)
+                        Picker(
+                          model.RatingKeys,
+                          model.Rating.Responsive - 1,
+                          fun (value: int) -> RatingChange(
+                            model.RatingMap.[model.RatingKeys.[value]],
+                            model.Rating.Friendly,
+                            model.Rating.Overall
+                          )
                         )
                         
                         Label("Was the server friendly? (1-10)").centerTextHorizontal()
-                        Entry(
-                          model.Rating.Friendly.ToString(),
-                          fun (txt) -> RatingChange(model.Rating.Responsive, txt |> int, model.Rating.Overall)
+                        
+                        Picker(
+                          model.RatingKeys,
+                          model.Rating.Friendly - 1,
+                          fun (value: int) -> RatingChange(
+                            model.Rating.Responsive,
+                            model.RatingMap.[model.RatingKeys.[value]],
+                            model.Rating.Overall
+                          )
                         )
                         
                         Label("How was your overall experience? (1-10)").centerTextHorizontal()
-                        Entry(
-                          model.Rating.Overall.ToString(),
-                          fun (txt) -> RatingChange(model.Rating.Responsive, model.Rating.Friendly, txt |> int)
+                        
+                        Picker(
+                          model.RatingKeys,
+                          model.Rating.Overall - 1,
+                          fun (value: int) -> RatingChange(
+                            model.Rating.Responsive,
+                            model.Rating.Friendly,
+                            model.RatingMap.[model.RatingKeys.[value]]
+                          )
                         )
                         
                         Label("Fuzzy Service Rating").centerTextHorizontal()
                         
-                        Label($"Responsive(low = {model.FuzzyServiceRating.Responsive.Low}, med = {model
-                        .FuzzyServiceRating.Responsive.Med}, high = {model.FuzzyServiceRating.Responsive.High})"
+                        Label(
+                          sprintf
+                            "Responsive(low = %.2f, med = %.2f, high = %.2f)"
+                            model.FuzzyServiceRating.Responsive.Low
+                            model.FuzzyServiceRating.Responsive.Med
+                            model.FuzzyServiceRating.Responsive.High
                         )
                         
-                        Label($"Friendly(low = {model.FuzzyServiceRating.Friendly.Low}, med = {model
-                        .FuzzyServiceRating.Friendly.Med}, high = {model.FuzzyServiceRating.Friendly.High})"
+                        Label(
+                          sprintf
+                            "Friendly(low = %.2f, med = %.2f, high = %.2f)"
+                            model.FuzzyServiceRating.Friendly.Low
+                            model.FuzzyServiceRating.Friendly.Med
+                            model.FuzzyServiceRating.Friendly.High
                         )
-                        Label($"Overall(low = {model.FuzzyServiceRating.Overall.Low}, med = {model
-                        .FuzzyServiceRating.Overall.Med}, high = {model.FuzzyServiceRating.Overall.High})"
+                        
+                        Label(
+                          sprintf
+                            "Overall(low = %.2f, med = %.2f, high = %.2f)"
+                            model.FuzzyServiceRating.Overall.Low
+                            model.FuzzyServiceRating.Overall.Med
+                            model.FuzzyServiceRating.Overall.High
                         )
                      }).centerVertical(expand = true)
                 }
