@@ -24,6 +24,10 @@ module App =
       FuzzyServiceRating: FuzzyServiceRating
       RatingKeys: string list
       RatingMap: Map<string, int>
+      Rule1: float
+      Rule2: float
+      Rule3: float
+      
     }
 
     type Msg =
@@ -56,20 +60,45 @@ module App =
         ("9", 9)
         ("10", 10)
       ]
+      Rule1 = 0.0
+      Rule2 = 0.0
+      Rule3 = 0.0
     }
 
     let update msg model =
         match msg with
         | CostChange       cost ->  { model with Cost   = cost }
-        | RatingChange(responsive, friendly, overall) -> {
-          model with
-            Rating = { Responsive = responsive; Friendly = friendly; Overall = overall }
-            FuzzyServiceRating = {
-              Responsive = FuzzyVariable.grade (float responsive) 1.0 10.0
-              Overall    = FuzzyVariable.grade (float overall)    1.0 10.0
-              Friendly   = FuzzyVariable.grade (float friendly)   1.0 10.0
-            }
-        }
+        | RatingChange(responsive, friendly, overall) ->
+          
+          let updatedResponsive = FuzzyVariable.grade (float responsive) 1.0 10.0
+          let updatedOverall    = FuzzyVariable.grade (float overall)    1.0 10.0
+          let updatedFriendly   = FuzzyVariable.grade (float friendly)   1.0 10.0
+          
+          let mediumOverall = FuzzyValue.FuzzyValue(updatedOverall.Med)
+          let highOverall = FuzzyValue.FuzzyValue(updatedOverall.High)
+          
+          let veryFast = FuzzyValue.FuzzyValue(updatedResponsive.High)
+          let veryFriendly = FuzzyValue.FuzzyValue(updatedFriendly.High)
+          let veryOverall = FuzzyValue.FuzzyValue(updatedOverall.High)
+          
+          let rule1 = FuzzyValue.fuzzyAnd veryFast veryFriendly
+          let rule2 = FuzzyValue.fuzzyOr mediumOverall highOverall
+          let rule3 = FuzzyValue.fuzzyAnd (FuzzyValue.fuzzyAnd veryFast veryFriendly) veryOverall
+          
+          {          
+            model with
+              Rating = { Responsive = responsive; Friendly = friendly; Overall = overall }
+              FuzzyServiceRating = {
+                Responsive = updatedResponsive
+                Overall    = updatedOverall
+                Friendly   = updatedFriendly
+              }
+              
+              Rule1 = match rule1 with | FuzzyValue.FuzzyValue(value) -> value
+              Rule2 = match rule2 with | FuzzyValue.FuzzyValue(value) -> value
+              Rule3 = match rule3 with | FuzzyValue.FuzzyValue(value) -> value
+              
+          }
     let view model =
         Application(
             ContentPage(
@@ -146,6 +175,21 @@ module App =
                             model.FuzzyServiceRating.Overall.Med
                             model.FuzzyServiceRating.Overall.High
                         )
+                        
+                        Label("Fuzzy Rule Values").centerTextHorizontal()
+                        
+                        Label(
+                          sprintf "Very fast and very friendly = %.2f" model.Rule1
+                        )
+                        
+                        Label(
+                          sprintf "Medium or great overall = %.2f" model.Rule2
+                        )
+                        
+                        Label(
+                          sprintf "Perfect = %.2f" model.Rule3
+                        )
+                        
                      }).centerVertical(expand = true)
                 }
             )
